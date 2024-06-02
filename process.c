@@ -9,7 +9,78 @@ int generateUniquePid() {
     return pid;
 }
 
+void resetProcesses() {
+    for (int i = 1; i < processCount + 1; i++) {
+        processes[i] = originalProcesses[i];
+    }
+}
 
+/////////////////////////////////////////// 디버깅 용
+// void createProcess() {
+//     processCount = 4;
+
+//     // 프로세스 1
+//     originalProcesses[1].pid = 5527;
+//     processMap[5527] = 1;
+//     originalProcesses[1].priority = 5;
+//     originalProcesses[1].arrivalTime = 5;
+//     originalProcesses[1].cpuBurstTime = 2;
+//     originalProcesses[1].ioBurstTime = 0;
+//     originalProcesses[1].ioBurstTiming = 0;
+//     originalProcesses[1].waitingStartTime = 5;
+//     originalProcesses[1].cpuRemainingTime = 2;
+//     originalProcesses[1].ioRemainingTime = 0;
+//     originalProcesses[1].waitingTime = 0;
+//     originalProcesses[1].turnaroundTime = 0;
+
+//     // 프로세스 2
+//     originalProcesses[2].pid = 9166;
+//     processMap[9166] = 2;
+//     originalProcesses[2].priority = 1;
+//     originalProcesses[2].arrivalTime = 6;
+//     originalProcesses[2].cpuBurstTime = 9;
+//     originalProcesses[2].ioBurstTime = 1;
+//     originalProcesses[2].ioBurstTiming = 3;
+//     originalProcesses[2].waitingStartTime = 6;
+//     originalProcesses[2].cpuRemainingTime = 9;
+//     originalProcesses[2].ioRemainingTime = 1;
+//     originalProcesses[2].waitingTime = 0;
+//     originalProcesses[2].turnaroundTime = 0;
+
+//     // 프로세스 3
+//     originalProcesses[3].pid = 6953;
+//     processMap[6953] = 3;
+//     originalProcesses[3].priority = 5;
+//     originalProcesses[3].arrivalTime = 4;
+//     originalProcesses[3].cpuBurstTime = 3;
+//     originalProcesses[3].ioBurstTime = 3;
+//     originalProcesses[3].ioBurstTiming = 2;
+//     originalProcesses[3].waitingStartTime = 4;
+//     originalProcesses[3].cpuRemainingTime = 3;
+//     originalProcesses[3].ioRemainingTime = 3;
+//     originalProcesses[3].waitingTime = 0;
+//     originalProcesses[3].turnaroundTime = 0;
+
+//     // 프로세스 4
+//     originalProcesses[4].pid = 2587;
+//     processMap[2587] = 4;
+//     originalProcesses[4].priority = 0;
+//     originalProcesses[4].arrivalTime = 9;
+//     originalProcesses[4].cpuBurstTime = 3;
+//     originalProcesses[4].ioBurstTime = 0;
+//     originalProcesses[4].ioBurstTiming = 0;
+//     originalProcesses[4].waitingStartTime = 9;
+//     originalProcesses[4].cpuRemainingTime = 3;
+//     originalProcesses[4].ioRemainingTime = 0;
+//     originalProcesses[4].waitingTime = 0;
+//     originalProcesses[4].turnaroundTime = 0;
+
+//     // originalProcesses 배열을 processes 배열로 복사
+//     for (int i = 1; i <= processCount; i++) {
+//         processes[i] = originalProcesses[i];
+//     }
+// }
+///////////////////////////////////////////////
 
 void createProcess(int processNum) {
     srand(time(NULL));
@@ -40,11 +111,6 @@ void createProcess(int processNum) {
     }
 }
 
-void resetProcesses() {
-    for (int i = 1; i < processCount + 1; i++) {
-        processes[i] = originalProcesses[i];
-    }
-}
 
 
 void printProcesses() {
@@ -76,19 +142,35 @@ void evaluate(){
 }
 
 
+// void ganttChart(int chart[], int size) {
+//     printf("\nGantt Chart:\n");
+//     printf("|");
+//     for (int i = 0; i < size; i++) {
+//         if (chart[i] == 0) {
+//             printf(" IDLE |");
+//         } else {
+//             printf(" P%d |", chart[i]);
+//         }
+//     }
+//     printf("\n");
+//     for (int i = 0; i < size; i++) {
+//         printf(" %4d  ", i+1);
+//     }
+//     printf("\n");
+// }
 void ganttChart(int chart[], int size) {
     printf("\nGantt Chart:\n");
     printf("|");
     for (int i = 0; i < size; i++) {
         if (chart[i] == 0) {
-            printf(" IDLE |");
+            printf(" IDLE  |");  // "IDLE"을 6글자로 맞춤
         } else {
-            printf(" P%d |", chart[i]);
+            printf(" P%4d |", chart[i]);
         }
     }
     printf("\n");
     for (int i = 0; i < size; i++) {
-        printf(" %2d  ", i);
+        printf("  %5d ", i + 1);
     }
     printf("\n");
 }

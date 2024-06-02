@@ -1,6 +1,38 @@
 #include "main.h"
 
 
+
+void sortReadyQueueByCpuBurstTime(int queue[], int* front, int* rear){
+    for (int i = *front; i != *rear; i = (i + 1) % (MAX_QUEUE_SIZE + 1)) {
+        for (int j = (i + 1) % (MAX_QUEUE_SIZE + 1); j != *rear; j = (j + 1) % (MAX_QUEUE_SIZE + 1)) {
+            if (processes[processMap[queue[i]]].cpuRemainingTime > processes[processMap[queue[j]]].cpuRemainingTime) {
+                int temp = queue[i];
+                queue[i] = queue[j];
+                queue[j] = temp;
+            }
+        }
+    }
+}
+
+void sortReadyQueueByPriority(int queue[], int* front, int* rear){
+    for (int i = *front; i != *rear; i = (i + 1) % (MAX_QUEUE_SIZE + 1)) {
+        for (int j = (i + 1) % (MAX_QUEUE_SIZE + 1); j != *rear; j = (j + 1) % (MAX_QUEUE_SIZE + 1)) {
+            if (processes[processMap[queue[i]]].priority > processes[processMap[queue[j]]].priority) {
+                int temp = queue[i];
+                queue[i] = queue[j];
+                queue[j] = temp;
+            }
+        }
+    }
+}
+
+void io(int queue[], int *front, int *rear) {
+    for (int i = *front; i != *rear; i = (i + 1) % (MAX_QUEUE_SIZE + 1)) {
+        processes[processMap[queue[i]]].ioRemainingTime--;
+    }
+}
+
+
 void fcfs() {
     int currentPid = -1;
     int currentTime = 0;
@@ -66,7 +98,7 @@ void fcfs() {
             chart[currentTime] = 0; // IDLE
         }
 
-        ioBurst(waitingQueue, &waitingQueueFront, &waitingQueueRear);
+        io(waitingQueue, &waitingQueueFront, &waitingQueueRear);
 
         currentTime++;
     }
@@ -75,35 +107,7 @@ void fcfs() {
     evaluate();
 }
 
-void sortReadyQueueByCpuBurstTime(int queue[], int* front, int* rear){
-    for (int i = *front; i != *rear; i = (i + 1) % (MAX_QUEUE_SIZE + 1)) {
-        for (int j = (i + 1) % (MAX_QUEUE_SIZE + 1); j != *rear; j = (j + 1) % (MAX_QUEUE_SIZE + 1)) {
-            if (processes[processMap[queue[i]]].cpuRemainingTime > processes[processMap[queue[j]]].cpuRemainingTime) {
-                int temp = queue[i];
-                queue[i] = queue[j];
-                queue[j] = temp;
-            }
-        }
-    }
-}
 
-void sortReadyQueueByPriority(int queue[], int* front, int* rear){
-    for (int i = *front; i != *rear; i = (i + 1) % (MAX_QUEUE_SIZE + 1)) {
-        for (int j = (i + 1) % (MAX_QUEUE_SIZE + 1); j != *rear; j = (j + 1) % (MAX_QUEUE_SIZE + 1)) {
-            if (processes[processMap[queue[i]]].priority > processes[processMap[queue[j]]].priority) {
-                int temp = queue[i];
-                queue[i] = queue[j];
-                queue[j] = temp;
-            }
-        }
-    }
-}
-
-void ioBurst(int queue[], int *front, int *rear) {
-    for (int i = *front; i != *rear; i = (i + 1) % (MAX_QUEUE_SIZE + 1)) {
-        processes[processMap[queue[i]]].ioRemainingTime--;
-    }
-}
 
 
 void nonPreemptiveSJF(){
@@ -173,7 +177,7 @@ void nonPreemptiveSJF(){
             chart[currentTime] = 0; // IDLE
         }
 
-        ioBurst(waitingQueue, &waitingQueueFront, &waitingQueueRear);
+        io(waitingQueue, &waitingQueueFront, &waitingQueueRear);
 
         currentTime++;
     }
@@ -249,7 +253,7 @@ void nonPreemptivePriority(){
             chart[currentTime] = 0; // IDLE
         }
 
-        ioBurst(waitingQueue, &waitingQueueFront, &waitingQueueRear);
+        io(waitingQueue, &waitingQueueFront, &waitingQueueRear);
 
         currentTime++;
     }
@@ -317,6 +321,8 @@ void preemptiveSJF(){
         } else if(currentPid != -1 && isArrivalNow == 1){
             int tempPid = dequeue(readyQueue, &readyQueueFront, &readyQueueRear);
             if(processes[processMap[tempPid]].cpuRemainingTime < processes[processMap[currentPid]].cpuRemainingTime){
+                //curpid 여기서 waitingStartTime을 currentTime으로 바꿔야 하나?
+                processes[processMap[currentPid]].waitingStartTime = currentTime;
                 enqueue(readyQueue, &readyQueueFront, &readyQueueRear, currentPid);
                 sortReadyQueueByCpuBurstTime(readyQueue, &readyQueueFront, &readyQueueRear);
                 currentPid = tempPid;
@@ -340,7 +346,7 @@ void preemptiveSJF(){
             chart[currentTime] = 0; // IDLE
         }
 
-        ioBurst(waitingQueue, &waitingQueueFront, &waitingQueueRear);
+        io(waitingQueue, &waitingQueueFront, &waitingQueueRear);
 
         currentTime++;
     }
@@ -409,6 +415,8 @@ void preemptivePriority(){
         else if(currentPid != -1 && isArrivalNow == 1){
             int tempPid = dequeue(readyQueue, &readyQueueFront, &readyQueueRear);
             if(processes[processMap[tempPid]].priority < processes[processMap[currentPid]].priority){
+                //preSJF랑 같은 위치
+                processes[processMap[currentPid]].waitingStartTime = currentTime;
                 enqueue(readyQueue, &readyQueueFront, &readyQueueRear, currentPid);
                 sortReadyQueueByPriority(readyQueue, &readyQueueFront, &readyQueueRear);
                 currentPid = tempPid;
@@ -432,7 +440,7 @@ void preemptivePriority(){
             chart[currentTime] = 0; // IDLE
         }
 
-        ioBurst(waitingQueue, &waitingQueueFront, &waitingQueueRear);
+        io(waitingQueue, &waitingQueueFront, &waitingQueueRear);
 
         currentTime++;
     }
@@ -508,16 +516,37 @@ void roundRobin(int timeQuantum) {
                 completed++;
                 timeSlice = 0;
             } else if (timeSlice == timeQuantum) {
-                enqueue(readyQueue, &readyQueueFront, &readyQueueRear, currentPid);
-                processes[processMap[currentPid]].waitingStartTime = currentTime + 1;
-                currentPid = -1;
-                timeSlice = 0;
+                if (processes[processMap[currentPid]].ioBurstTime != 0 && processes[processMap[currentPid]].ioBurstTiming == processes[processMap[currentPid]].cpuBurstTime - processes[processMap[currentPid]].cpuRemainingTime) {
+                    io(waitingQueue, &waitingQueueFront, &waitingQueueRear);
+                    enqueue(waitingQueue, &waitingQueueFront, &waitingQueueRear, currentPid);
+                    for (int i = waitingQueueFront; i != waitingQueueRear; i = (i + 1) % (MAX_QUEUE_SIZE + 1)) {
+                        for (int j = (i + 1) % (MAX_QUEUE_SIZE + 1); j != waitingQueueRear; j = (j + 1) % (MAX_QUEUE_SIZE + 1)) {
+                            if (processes[processMap[waitingQueue[i]]].ioRemainingTime > processes[processMap[waitingQueue[j]]].ioRemainingTime) {
+                                int temp = waitingQueue[i];
+                                waitingQueue[i] = waitingQueue[j];
+                                waitingQueue[j] = temp;
+                            }
+                        }
+                    }
+                    processes[processMap[currentPid]].waitingStartTime = currentTime+1;
+                    currentPid = -1;
+                    timeSlice = 0;
+                    currentTime++;
+                    continue;
+                        
+                } else {
+                    enqueue(readyQueue, &readyQueueFront, &readyQueueRear, currentPid);
+                    processes[processMap[currentPid]].waitingStartTime = currentTime+1;
+                    currentPid = -1;
+                    timeSlice = 0;
+                }
+                
             }
         } else {
             chart[currentTime] = 0; // IDLE
         }
 
-        ioBurst(waitingQueue, &waitingQueueFront, &waitingQueueRear);
+        io(waitingQueue, &waitingQueueFront, &waitingQueueRear);
 
         currentTime++;
     }

@@ -44,7 +44,7 @@ void preemptiveSJF();
 void nonPreemptivePriority();
 void preemptivePriority();
 void roundRobin(int timeQuantum);
-void ioBurst(int queue[], int *front, int *rear);
+void io(int queue[], int *front, int *rear);
 
 
 
